@@ -2,8 +2,8 @@ import {$, file} from 'bun';
 import { glob } from 'glob'
 import { writeFile } from 'fs/promises';
 
-// get latest deno
-await $`git submodule update --recursive --init --remote --merge deno`
+console.info('Updating Deno tests...');
+await $`git pull --recurse`
 
 const testJsonConfigFileText = await file('deno/tests/node_compat/config.jsonc').text();
 const jsonConfigFileWithCommentsRemoved = testJsonConfigFileText
@@ -19,6 +19,9 @@ const finalResult = new Array<any>();
 for(const category of categories) {
     console.info('Processing category:', category);
 
+    const testsIgnored = jsonConfigObject.ignore[category] || [];
+    const testsWindowsIgnored = jsonConfigObject.windowsIgnore[category] || [];
+    const testsDarwinIgnored = jsonConfigObject.darwinIgnore[category] || [];
     const testsImplemented = jsonConfigObject.tests[category] || [];
     const allTestFilePaths = await glob(`deno/tests/node_compat/test/${category}/*`);
     const allTestFileNames = allTestFilePaths.map(path => path.split('/').pop());
@@ -26,7 +29,11 @@ for(const category of categories) {
     finalResult.push(...allTestFileNames.map(testFileName => {
         return {
             name: category + "/" + testFileName,
-            implemented: testsImplemented.includes(testFileName)
+            implemented: 
+                testsImplemented.includes(testFileName) && 
+                !testsIgnored.includes(testFileName) &&
+                !testsWindowsIgnored.includes(testFileName) &&
+                !testsDarwinIgnored.includes(testFileName)
         } as TestCoverage;
     }));
 }

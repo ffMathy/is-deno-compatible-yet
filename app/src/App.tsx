@@ -28,6 +28,15 @@ function App() {
       <header className="App-header">
         Deno 2 is <strong>{percentageCompatible}%</strong> compatible with Node.js
       </header>
+      <main>
+        <ul>
+          {tests.map(test => (
+            <li key={test.name}>
+              {test.name} - {test.implemented ? 'Implemented' : 'Not implemented'}
+            </li>
+          ))}
+        </ul>
+      </main>
     </div>
   );
 }
