@@ -1,0 +1,15 @@
+{
+  "name": "is-deno-compatible-yet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/bun": "^1.1.14",
+    "bun": "^1.1.37"
+  }
+}
