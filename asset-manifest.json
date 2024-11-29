@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/is-deno-compatible-yet/static/css/main.977a20d0.css",
+    "main.js": "/is-deno-compatible-yet/static/js/main.5d37f48e.js",
+    "static/js/453.a6a97343.chunk.js": "/is-deno-compatible-yet/static/js/453.a6a97343.chunk.js",
+    "index.html": "/is-deno-compatible-yet/index.html",
+    "main.977a20d0.css.map": "/is-deno-compatible-yet/static/css/main.977a20d0.css.map",
+    "main.5d37f48e.js.map": "/is-deno-compatible-yet/static/js/main.5d37f48e.js.map",
+    "453.a6a97343.chunk.js.map": "/is-deno-compatible-yet/static/js/453.a6a97343.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.977a20d0.css",
+    "static/js/main.5d37f48e.js"
+  ]
+}
