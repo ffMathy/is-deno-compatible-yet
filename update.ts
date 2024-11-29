@@ -3,7 +3,7 @@ import { glob } from 'glob'
 import { writeFile } from 'fs/promises';
 
 // get latest deno
-await $`git submodule update --remote --merge deno`
+await $`git submodule update --recursive --init --remote --merge deno`
 
 const testJsonConfigFileText = await file('deno/tests/node_compat/config.jsonc').text();
 const jsonConfigFileWithCommentsRemoved = testJsonConfigFileText
@@ -11,11 +11,15 @@ const jsonConfigFileWithCommentsRemoved = testJsonConfigFileText
     .filter(line => !line.trim().startsWith('//'))
     .join('\n');
 const jsonConfigObject = JSON.parse(jsonConfigFileWithCommentsRemoved);
-const categories = Object.keys(jsonConfigObject.tests);
+
+const availableCategoryPaths = await glob('deno/tests/node_compat/runner/suite/test/*');
+const categories = availableCategoryPaths.map(path => path.split('/').pop()!);
 
 const finalResult = new Array<any>();
 for(const category of categories) {
-    const testsImplemented = jsonConfigObject.tests[category];
+    console.info('Processing category:', category);
+
+    const testsImplemented = jsonConfigObject.tests[category] || [];
     const allTestFilePaths = await glob(`deno/tests/node_compat/test/${category}/*`);
     const allTestFileNames = allTestFilePaths.map(path => path.split('/').pop());
 
@@ -23,7 +27,7 @@ for(const category of categories) {
         return {
             name: category + "/" + testFileName,
             implemented: testsImplemented.includes(testFileName)
-        }
+        } as TestCoverage;
     }));
 }
 
