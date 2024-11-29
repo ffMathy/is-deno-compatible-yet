@@ -26,7 +26,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        Deno 2 is <strong>{percentageCompatible}%</strong> compatible with Node.js
+        Deno 2 is <strong>{percentageCompatible}%</strong> compatible with the Node.js test suite
       </header>
       <main>
         <ul>

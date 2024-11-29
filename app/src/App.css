@@ -3,13 +3,24 @@
 }
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
   display: flex;
   flex-direction: row;
   gap: 10px;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+body {
+  background-color: #282c34;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
   color: white;
 }

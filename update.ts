@@ -3,7 +3,7 @@ import { glob } from 'glob'
 import { writeFile } from 'fs/promises';
 
 console.info('Updating Deno tests...');
-await $`git pull --recurse`
+await $`git submodule update --recursive --init --remote --merge deno`
 
 const testJsonConfigFileText = await file('deno/tests/node_compat/config.jsonc').text();
 const jsonConfigFileWithCommentsRemoved = testJsonConfigFileText
