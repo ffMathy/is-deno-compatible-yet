@@ -1,19 +1,7 @@
-.App {
-  text-align: center;
-}
-
-.App-header {
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
 body {
   background-color: #282c34;
+  color: white;
+  text-align: center;
 }
 
 ul {
@@ -21,6 +9,83 @@ ul {
   padding: 0;
 }
 
-li {
+header h1 {
+  font-size: 40px;
+  margin-top: 10vh;
+}
+
+header p {
+  font-size: 30px;
+  opacity: 0.5;
+  margin: 4px;
+}
+
+header i {
+  font-size: 20px;
+  opacity: 0.5;
+}
+
+main {
+  margin-top: 10vh;
+  text-align: left;
+  width: auto;
+  place-self: center;
+}
+
+main .test-category h2 {
+  font-size: 30px;
+  padding: 10px 20px;
+  margin: 0;
+}
+
+main .test-category .name {
+  padding-left: 10px;
+}
+
+main .test-category th.name {
+  font-size: 20px;
+  font-weight: normal;
+}
+
+main .test-category th.name span {
+  opacity: 0.75;
+  font-size: 14px;
+  margin-left: 10px;
+  display: inline-block;
+}
+
+main .test-category td.name {
+  opacity: 0.9;
+}
+
+main .test.missing td.name {
+  opacity: 0.5;
+}
+
+main .status {
+  width: 30px;
+  height: 30px;
+}
+
+main .implemented > .status {
+  background-color: rgba(100, 255, 0, 0.9);
+}
+
+main .partial > .status {
+  background-color: rgba(255, 165, 0, 0.9);
   color: white;
+}
+
+main .missing > .status {
+  background-color: rgba(255, 0, 0, 0.5);
+  color: white;
+}
+
+main .test-category {
+  cursor: pointer;
+  margin-bottom: 1vh;
+}
+
+main .test-category.collapsed .test {
+  display: none;
 }

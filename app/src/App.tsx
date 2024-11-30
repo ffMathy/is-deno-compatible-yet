@@ -1,43 +1,113 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import './App.css';
+import { chain } from 'lodash';
 
 function App() {
-  const [tests, setTests] = React.useState<TestCoverage[]>([]);
+  const [testCoverageReport, setTestCoverageReport] = React.useState<TestCoverageReport>();
   useEffect(() => {
     async function effect() {
       const response = await fetch('/is-deno-compatible-yet/tests.json');
-      const tests = await response.json();
-      setTests(tests);
+      const tests = await response.json() as TestCoverageReport;
+      setTestCoverageReport(tests);
     }
 
     effect();
   }, []);
 
-  const percentageCompatible = useMemo(() => {
-    const implementedTests = tests.filter(test => test.implemented);
-    return Math.round(implementedTests.length / tests.length * 100);
-  }, [tests]);
+  const tests = useMemo(() => {
+    return chain(testCoverageReport?.coverage || [])
+      .sortBy(x => !x.implemented)
+      .value();
+  }, [testCoverageReport]);
 
-  if(tests.length === 0) {
+  const testsGroupedByPath = useMemo(() => {
+    return chain(tests)
+      .groupBy(test => test.name.substring(0, test.name.lastIndexOf('/')))
+      .value();
+  }, [tests])
+
+  const amountImplemented = useMemo(() => {
+    return testCoverageReport?.coverage.filter(test => test.implemented).length;
+  }, [testCoverageReport]);
+
+  const amountTotal = useMemo(() => {
+    return testCoverageReport?.coverage.length;
+  }, [testCoverageReport]);
+
+  const percentageCompatible = useMemo(() => {
+    if (!amountTotal || !amountImplemented) {
+      return 0;
+    }
+
+    return Math.round(amountImplemented / amountTotal * 100);
+  }, [amountImplemented, amountTotal]);
+
+  if (!testCoverageReport) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div className="App">
-      <header className="App-header">
-        Deno 2 is <strong>{percentageCompatible}%</strong> compatible with the Node.js test suite
+    <>
+      <header>
+        <h1>Deno 2 is <b>{percentageCompatible}%</b> compatible with the Node.js test suite</h1>
+        <p><b>{amountImplemented}</b> tests implemented out of <b>{amountTotal}</b></p>
+        <p><i>Last checked: <b>{testCoverageReport.date}</b></i></p>
       </header>
       <main>
-        <ul>
-          {tests.map(test => (
-            <li key={test.name}>
-              {test.name} - {test.implemented ? 'Implemented' : 'Not implemented'}
-            </li>
-          ))}
-        </ul>
+        {Object.keys(testsGroupedByPath).map(groupName => {
+          const tests = testsGroupedByPath[groupName];
+          return <TestCategory key={groupName} categoryName={groupName} tests={tests} />
+        })}
       </main>
-    </div>
+    </>
   );
+}
+
+function TestCategory(props: {
+  tests: TestCoverage[],
+  categoryName: string
+}) {
+  const [isExpanded, setIsExpanded] = useState(true);
+
+  const tests = props.tests;
+
+  const areAllImplemented = tests.every(x => x.implemented);
+  const areAllMissing = tests.every(x => !x.implemented);
+
+  const amountMissing = tests.filter(x => !x.implemented).length;
+  const amountImplemented = tests.length - amountMissing;
+  const percentageImplemented = Math.round(amountImplemented / tests.length * 100);
+
+  const className = areAllImplemented ? 
+    'implemented' : 
+    areAllMissing ? 
+      'missing' : 
+      'partial';
+
+  return (
+    <div className={`test-category ${isExpanded ? 'expanded' : 'collapsed'}`}>
+      <table>
+        <thead>
+          <tr className={className} onClick={() => {
+              setIsExpanded(!isExpanded);
+            }}>
+            <th className="status"></th>
+            <th className="name"><b>{props.categoryName}</b> <span><b>{percentageImplemented}%</b></span> <span><b>{amountImplemented}</b> of <b>{tests.length}</b></span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {tests.map(test => (
+            <tr key={test.name} className={`test ${test.implemented ? 'implemented' : 'missing'}`}>
+              <td className="status"></td>
+              <td className="name">
+                {test.name.substring(props.categoryName.length + 1)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
 }
 
 export default App;

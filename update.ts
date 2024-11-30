@@ -1,6 +1,8 @@
 import {$, file} from 'bun';
 import { glob } from 'glob'
 import { writeFile } from 'fs/promises';
+import {relative } from 'path';
+import { uniq } from 'lodash';
 
 console.info('Updating Deno tests...');
 await $`git submodule update --recursive --init --remote --merge deno`
@@ -12,19 +14,30 @@ const jsonConfigFileWithCommentsRemoved = testJsonConfigFileText
     .join('\n');
 const jsonConfigObject = JSON.parse(jsonConfigFileWithCommentsRemoved);
 
-const availableCategoryPaths = await glob('deno/tests/node_compat/runner/suite/test/*');
-const categories = availableCategoryPaths.map(path => path.split('/').pop()!);
+const basePath = 'deno/tests/node_compat/runner/suite/test';
+const availableCategoryPaths = await glob('deno/tests/node_compat/runner/suite/test/**/*');
+const categories = uniq(availableCategoryPaths.map(path => {
+    const relativePath = relative(basePath, path);
+    return relativePath.substring(0, relativePath.lastIndexOf('/'))
+}));
 
 const finalResult = new Array<any>();
 for(const category of categories) {
-    console.info('Processing category:', category);
+    if(!category) {
+        continue;
+    }
 
     const testsIgnored = jsonConfigObject.ignore[category] || [];
     const testsWindowsIgnored = jsonConfigObject.windowsIgnore[category] || [];
     const testsDarwinIgnored = jsonConfigObject.darwinIgnore[category] || [];
     const testsImplemented = jsonConfigObject.tests[category] || [];
-    const allTestFilePaths = await glob(`deno/tests/node_compat/test/${category}/*`);
-    const allTestFileNames = allTestFilePaths.map(path => path.split('/').pop());
+    
+    const categoryBasePath = `${basePath}/${category}`;
+    const allTestFilePaths = await glob(`${categoryBasePath}/*`);
+    const allTestFileNames = allTestFilePaths.map(path => relative(categoryBasePath, path));
+    
+    console.info('Processing category:', category, allTestFileNames, testsImplemented, testsIgnored.length + testsWindowsIgnored.length + testsDarwinIgnored.length);
+    console.info();
 
     finalResult.push(...allTestFileNames.map(testFileName => {
         return {
@@ -40,4 +53,7 @@ for(const category of categories) {
 
 // persist to a JSON file in the react app public folder
 const jsonFilePath = `app/public/tests.json`;
-await writeFile(jsonFilePath, JSON.stringify(finalResult, null, 1));
+await writeFile(jsonFilePath, JSON.stringify({
+    coverage: finalResult,
+    date: new Date().toISOString()
+} as TestCoverageReport, null, 1));
