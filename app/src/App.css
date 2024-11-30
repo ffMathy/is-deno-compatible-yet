@@ -1,12 +1,11 @@
-body {
+body, #root {
   background-color: #282c34;
   color: white;
   text-align: center;
-}
-
-ul {
-  list-style-type: none;
-  padding: 0;
+  display: flex;
+  flex-direction: column;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
 }
 
 header h1 {
