@@ -11,6 +11,8 @@ ul {
 
 header h1 {
   font-size: 40px;
+  font-weight: normal;
+  
   margin-top: 10vh;
 }
 
