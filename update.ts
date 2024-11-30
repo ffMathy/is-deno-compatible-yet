@@ -21,9 +21,31 @@ const categories = uniq(availableCategoryPaths.map(path => {
     return relativePath.substring(0, relativePath.lastIndexOf('/'))
 }));
 
+//from: https://github.com/denoland/deno/blob/main/tests/node_compat/runner/setup.ts
+const ignoredDirectories = [
+    "addons",
+    "async-hooks",
+    "cctest",
+    "common",
+    "doctool",
+    "embedding",
+    "fixtures",
+    "fuzzers",
+    "js-native-api",
+    "node-api",
+    "overlapped-checker",
+    "report",
+    "testpy",
+    "tick-processor",
+    "tools",
+    "v8-updates",
+    "wasi",
+    "wpt",
+  ];
+
 const finalResult = new Array<any>();
 for(const category of categories) {
-    if(!category) {
+    if(!category || ignoredDirectories.includes(category)) {
         continue;
     }
 
