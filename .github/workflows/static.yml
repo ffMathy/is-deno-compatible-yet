@@ -42,6 +42,7 @@ jobs:
           deno run --allow-all main.ts
 
           cd app
+          npm install
           npm run build
 
       - name: Upload artifact
