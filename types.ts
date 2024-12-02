@@ -1,9 +1,9 @@
-type TestCoverage = {
+export type TestCoverage = {
     name: string,
     implemented: boolean
 }
 
-type TestCoverageReport = {
+export type TestCoverageReport = {
     date: string,
     coverage: TestCoverage[]
 }

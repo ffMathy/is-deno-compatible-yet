@@ -33,7 +33,11 @@ jobs:
 
       - name: Build
         run: |
-          npm install
+          git submodule update --recursive --init --remote --merge deno
+          curl -fLso install.sh https://deno.land/install.sh
+          deno run main.ts
+
+          cd app
           npm run build
 
       - name: Upload artifact
