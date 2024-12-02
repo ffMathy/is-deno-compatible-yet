@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './App.css';
 import { chain } from 'lodash';
+import { TestCoverage, TestCoverageReport } from '../../types';
 
 function App() {
   const [testCoverageReport, setTestCoverageReport] = React.useState<TestCoverageReport>();
