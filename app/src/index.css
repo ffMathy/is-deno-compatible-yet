@@ -11,3 +11,17 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* To more clearly distinguish the elements that belong to the categories */
+.test-category > table tbody {
+  display: block;
+  margin-left: 1em;
+}
+
+.test-category > table thead {
+  display: block;
+}
+
+.test-category > table thead tr.partial th.name span {
+  margin-left: 0.5em;
+}
