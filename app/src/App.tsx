@@ -6,13 +6,22 @@ import { TestCoverage, TestCoverageReport } from '../../types';
 function App() {
   const [testCoverageReport, setTestCoverageReport] = React.useState<TestCoverageReport>();
   useEffect(() => {
-    async function effect() {
-      const response = await fetch('/is-deno-compatible-yet/tests.json');
-      const tests = await response.json() as TestCoverageReport;
-      setTestCoverageReport(tests);
-    }
-
-    effect();
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', '/is-deno-compatible-yet/tests.json');
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const tests = JSON.parse(xhr.responseText) as TestCoverageReport;
+          setTestCoverageReport(tests);
+        } catch (error) {
+          console.error("Error parsing JSON:", error);
+        }
+      } else {
+        console.error("Request failed with status " + xhr.status);
+      }
+    };
+    xhr.onerror = () => console.error('Network error');
+    xhr.send();
   }, []);
 
   const tests = useMemo(() => {
