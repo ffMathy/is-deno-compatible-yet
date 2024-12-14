@@ -49,12 +49,11 @@ jobs:
 
           DATE=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
           cp app/public/tests.json app/public/history/$DATE.json
+          echo "$DATE" >> app/public/history/index.txt
 
           cd app
           npm install
           npm run build
-          
-          echo "$DATE" >> app/public/history/index.txt
 
       - name: Update prior coverage data cache
         uses: actions/cache/save@v4
