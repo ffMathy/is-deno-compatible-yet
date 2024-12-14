@@ -1,4 +1,4 @@
-import { getDenoTests, getNodeTests } from "./deno/tests/node_compat/runner/setup.ts";
+import { getDenoTests, getNodeTests } from "./deno/tests/node_compat/common.ts";
 import { TestCoverage, TestCoverageReport } from './types.ts';
 
 const nodeTests = await getNodeTests();
