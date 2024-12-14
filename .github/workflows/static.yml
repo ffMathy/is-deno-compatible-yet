@@ -36,10 +36,10 @@ jobs:
           deno-version: v2.x
 
       - name: Cache prior coverage data
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: app/public/history
-          key: coverage-data-v1
+          key: coverage-data-v2
 
       - name: Build
         run: |
@@ -54,6 +54,12 @@ jobs:
           cd app
           npm install
           npm run build
+
+      - name: Update prior coverage data cache
+        uses: actions/cache/save@v4
+        with:
+          path: app/public/history
+          key: coverage-data-v2
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
