@@ -27,10 +27,11 @@ header i {
 }
 
 main {
-  margin-top: 10vh;
+  margin-top: 5vh;
   text-align: left;
   width: auto;
   place-self: center;
+  margin-bottom: 5vh;
 }
 
 main .test-category h2 {

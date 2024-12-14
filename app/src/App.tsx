@@ -53,11 +53,16 @@ function App() {
         }
       });
 
-      setHistoryPoints(await Promise.all(promises));
+      setHistoryPoints([
+        ...await Promise.all(promises),
+        {
+          date: testCoverageReport?.date ?? '',
+          percentage: getPercentageCompatible(testCoverageReport)
+        }]);
     }
 
     effect();
-  }, [historyDates]);
+  }, [historyDates, testCoverageReport]);
 
   if (!testCoverageReport) {
     return <div>Loading...</div>;
@@ -72,7 +77,7 @@ function App() {
       </header>
       <main>
         <section style={{
-          marginBottom: 100
+          marginBottom: '5vh'
         }}>
           <LineChart
             height={290}
