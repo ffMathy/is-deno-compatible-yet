@@ -55,10 +55,16 @@ function App() {
 
       setHistoryPoints([
         ...await Promise.all(promises),
-        testCoverageReport ? {
-          date: testCoverageReport?.date ?? '',
-          percentage: getPercentageCompatible(testCoverageReport)
-        } : undefined].filter(x => !!x));
+        testCoverageReport ? 
+          {
+            date: testCoverageReport?.date ?? '',
+            percentage: getPercentageCompatible(testCoverageReport)
+          } : 
+          undefined
+        ]
+        .filter(x => !!x)
+        .map(x => x!)
+      );
     }
 
     effect();
