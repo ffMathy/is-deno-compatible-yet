@@ -39,7 +39,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: app/public/history
-          key: coverage-data-v2
+          key: coverage-data-v3
 
       - name: Build
         run: |
@@ -59,7 +59,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: app/public/history
-          key: coverage-data-v2
+          key: coverage-data-v3
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
