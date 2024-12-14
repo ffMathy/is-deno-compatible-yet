@@ -39,7 +39,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: app/public/history
-          key: coverage-data
+          key: coverage-data-v1
 
       - name: Build
         run: |
@@ -47,10 +47,9 @@ jobs:
 
           deno run --allow-all main.ts
 
-          DATE=$(date +"%Y-%m-%d")
-          FILENAME=tests-$DATE.json
-          cp app/public/tests.json app/public/history/$FILENAME
-          echo "$FILENAME" >> app/public/history/index.txt
+          DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          cp app/public/tests.json app/public/history/$DATE.json
+          echo "$DATE" >> app/public/history/index.txt
 
           cd app
           npm install

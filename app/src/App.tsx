@@ -2,6 +2,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 import './App.css';
 import { chain } from 'lodash';
 import { TestCoverage, TestCoverageReport } from '../../types';
+import { BarChart } from '@mui/x-charts/BarChart';
+import { format } from 'date-fns';
+import { LineChart } from '@mui/x-charts';
 
 function App() {
   const [testCoverageReport, setTestCoverageReport] = React.useState<TestCoverageReport>();
@@ -15,33 +18,47 @@ function App() {
     effect();
   }, []);
 
-  const tests = useMemo(() => {
-    return chain(testCoverageReport?.coverage || [])
-      .sortBy(x => !x.implemented)
-      .value();
-  }, [testCoverageReport]);
+  const [historyDates, setAvailableHistoryDates] = useState<Date[]>([]);
+  useEffect(() => {
+    async function effect() {
+      const response = await fetch('/is-deno-compatible-yet/history/index.txt');
+      if(response.status !== 200) {
+        console.warn('No history available');
+        return;
+      }
 
-  const testsGroupedByPath = useMemo(() => {
-    return chain(tests)
-      .groupBy(test => test.name.substring(0, test.name.lastIndexOf('/')))
-      .value();
-  }, [tests])
-
-  const amountImplemented = useMemo(() => {
-    return testCoverageReport?.coverage.filter(test => test.implemented).length;
-  }, [testCoverageReport]);
-
-  const amountTotal = useMemo(() => {
-    return testCoverageReport?.coverage.length;
-  }, [testCoverageReport]);
-
-  const percentageCompatible = useMemo(() => {
-    if (!amountTotal || !amountImplemented) {
-      return 0;
+      const text = await response.text();
+      setAvailableHistoryDates(chain(text)
+        .split('\n')
+        .map(x => x.trim())
+        .map(x => new Date(x))
+        .filter(x => !!x)
+        .filter(x => !isNaN(x.getTime()))
+        .uniq()
+        .orderBy()
+        .value());
     }
 
-    return Math.round(amountImplemented / amountTotal * 100);
-  }, [amountImplemented, amountTotal]);
+    effect();
+  }, []);
+
+  const [historyPoints, setHistoryPoints] = useState<{ date: string, percentage: number }[]>([]);
+  useEffect(() => {
+    async function effect() {
+      const promises = historyDates.map(async date => {
+        const response = await fetch(`/is-deno-compatible-yet/history/${date.toISOString()}.json`);
+        const tests = await response.json() as TestCoverageReport;
+        return {
+          date: date.toISOString(),
+          percentage: getPercentageCompatible(tests)
+        }
+      });
+
+      setHistoryPoints(await Promise.all(promises));
+    }
+
+    effect();
+  }, [historyDates]);
 
   if (!testCoverageReport) {
     return <div>Loading...</div>;
@@ -50,15 +67,27 @@ function App() {
   return (
     <>
       <header>
-        <h1>Deno 2 is <b>{percentageCompatible}%</b> compatible with the Node.js test suite</h1>
-        <p><b>{amountImplemented}</b> tests implemented out of <b>{amountTotal}</b></p>
+        <h1>Deno 2 is <b>{getPercentageCompatible(testCoverageReport)}%</b> compatible with the Node.js test suite</h1>
+        <p><b>{getAmountImplemented(testCoverageReport)}</b> tests implemented out of <b>{getTotalAmount(testCoverageReport)}</b></p>
         <p><i>Last checked: <b>{testCoverageReport.date}</b></i></p>
       </header>
       <main>
-        {Object.keys(testsGroupedByPath).map(groupName => {
-          const tests = testsGroupedByPath[groupName];
-          return <TestCategory key={groupName} categoryName={groupName} tests={tests} />
-        })}
+        <section style={{
+          marginBottom: 100
+        }}>
+          <LineChart
+            height={290}
+            series={[{ data: historyPoints.map(x => x.percentage) }]}
+            xAxis={[{ data: historyPoints.map(x => format(x.date, 'MMM do yyyy')), scaleType: 'band', label: 'Date' }]}
+            yAxis={[{ scaleType: 'linear', label: '% compatibility', max: 100, min: 0 }]}
+          />
+        </section>
+        <section>
+          {Object.keys(getTestsGroupedByPath(testCoverageReport)).map(groupName => {
+            const tests = getTestsGroupedByPath(testCoverageReport)[groupName];
+            return <TestCategory key={groupName} categoryName={groupName} tests={tests} />
+          })}
+        </section>
       </main>
     </>
   );
@@ -79,10 +108,10 @@ function TestCategory(props: {
   const amountImplemented = tests.length - amountMissing;
   const percentageImplemented = Math.round(amountImplemented / tests.length * 100);
 
-  const className = areAllImplemented ? 
-    'implemented' : 
-    areAllMissing ? 
-      'missing' : 
+  const className = areAllImplemented ?
+    'implemented' :
+    areAllMissing ?
+      'missing' :
       'partial';
 
   return (
@@ -90,8 +119,8 @@ function TestCategory(props: {
       <table>
         <thead>
           <tr className={className} onClick={() => {
-              setIsExpanded(!isExpanded);
-            }}>
+            setIsExpanded(!isExpanded);
+          }}>
             <th className="status"></th>
             <th className="name"><b>{props.categoryName}</b> <span><b>{percentageImplemented}%</b></span> <span><b>{amountImplemented}</b> of <b>{tests.length}</b></span></th>
           </tr>
@@ -112,3 +141,31 @@ function TestCategory(props: {
 }
 
 export default App;
+
+function getAmountImplemented(testCoverageReport: TestCoverageReport | undefined) {
+  return testCoverageReport?.coverage.filter(test => test.implemented).length ?? 0;
+};
+
+function getTests(testCoverageReport: TestCoverageReport | undefined) {
+  return chain(testCoverageReport?.coverage || [])
+    .sortBy(x => !x.implemented)
+    .value();
+}
+
+function getTestsGroupedByPath(testCoverageReport: TestCoverageReport | undefined) {
+  return chain(getTests(testCoverageReport))
+    .groupBy(test => test.name.substring(0, test.name.lastIndexOf('/')))
+    .value();
+}
+
+function getTotalAmount(testCoverageReport: TestCoverageReport | undefined) {
+  return testCoverageReport?.coverage.length ?? 0;
+}
+
+function getPercentageCompatible(testCoverageReport: TestCoverageReport | undefined) {
+  if (!getTotalAmount || !testCoverageReport) {
+    return 0;
+  }
+
+  return Math.round(getAmountImplemented(testCoverageReport) / getTotalAmount(testCoverageReport) * 100);
+}
