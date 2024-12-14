@@ -21,7 +21,7 @@ function App() {
   useEffect(() => {
     async function effect() {
       const response = await fetch('/is-deno-compatible-yet/history/index.txt');
-      if(response.status !== 200) {
+      if (response.status !== 200) {
         console.warn('No history available');
         return;
       }
@@ -55,10 +55,10 @@ function App() {
 
       setHistoryPoints([
         ...await Promise.all(promises),
-        {
+        testCoverageReport ? {
           date: testCoverageReport?.date ?? '',
           percentage: getPercentageCompatible(testCoverageReport)
-        }]);
+        } : undefined].filter(x => !!x));
     }
 
     effect();
