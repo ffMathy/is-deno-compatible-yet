@@ -39,7 +39,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: app/public/history
-          key: coverage-data-v2
+          key: coverage-data-v3
 
       - name: Build
         run: |
@@ -47,7 +47,7 @@ jobs:
 
           deno run --allow-all main.ts
 
-          DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          DATE=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
           cp app/public/tests.json app/public/history/$DATE.json
           echo "$DATE" >> app/public/history/index.txt
 
@@ -59,7 +59,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: app/public/history
-          key: coverage-data-v2
+          key: coverage-data-v3
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
