@@ -35,11 +35,22 @@ jobs:
         with:
           deno-version: v2.x
 
+      - name: Cache prior coverage data
+        uses: actions/cache@v4
+        with:
+          path: app/public/history
+          key: coverage-data
+
       - name: Build
         run: |
           git submodule update --recursive --init --remote --merge deno
 
           deno run --allow-all main.ts
+
+          DATE=$(date +"%Y-%m-%d")
+          FILENAME=tests-$DATE.json
+          cp app/public/tests.json app/public/history/$FILENAME
+          echo "$FILENAME" >> app/public/history/index.txt
 
           cd app
           npm install
