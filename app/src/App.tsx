@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import { chain } from 'lodash';
 import { TestCoverage, TestCoverageReport } from '../../types';
-import { BarChart } from '@mui/x-charts/BarChart';
 import { format } from 'date-fns';
 import { LineChart } from '@mui/x-charts';
 
