@@ -52,8 +52,8 @@ jobs:
           deno run --allow-all main.ts
 
           DATE=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
-          cp app/public/tests.json app/public/history/$DATE.json
-          echo "$DATE" >> app/public/history/index.txt
+          cp app/public/tests.json app/public/history/$(date -u +"%Y-%m-%dT%H_%M_%S.000Z").json
+          echo $(date -u +"%Y-%m-%dT%H:%M:%S.000Z") >> app/public/history/index.txt
 
           cd app
           npm install

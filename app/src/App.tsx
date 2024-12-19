@@ -45,7 +45,7 @@ function App() {
   useEffect(() => {
     async function effect() {
       const promises = historyDates.map(async date => {
-        const response = await fetch(`/is-deno-compatible-yet/history/${date.toISOString()}.json`);
+        const response = await fetch(`/is-deno-compatible-yet/history/${date.toISOString().replace(/_/g, ":")}.json`);
         const tests = await response.json() as TestCoverageReport;
         return {
           date: date.toISOString(),
