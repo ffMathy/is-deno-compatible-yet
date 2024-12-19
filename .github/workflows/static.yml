@@ -38,6 +38,9 @@ jobs:
       - name: Download artifact
         id: download-artifact
         uses: dawidd6/action-download-artifact@v7
+        with:
+          name: artifact
+          path: app/public/history
 
       # - name: Cache prior coverage data
       #   uses: actions/cache/restore@v4
