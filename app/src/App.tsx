@@ -86,7 +86,7 @@ function App() {
           marginBottom: '5vh'
         }}>
           <LineChart
-            height={290}
+            height={200}
             series={[{ data: historyPoints.map(x => x.percentage) }]}
             xAxis={[{ data: historyPoints.map(x => format(x.date, 'MMM do yyyy')), scaleType: 'band', label: 'Date' }]}
             yAxis={[{ scaleType: 'linear', label: '% compatibility', max: 100, min: 0 }]}
